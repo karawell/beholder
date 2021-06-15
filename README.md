@@ -1,2 +1,2 @@
-# beholder
-Multicoin trader for Binance
+# beholder-alunos
+Multicoin traderbot for Binance.
