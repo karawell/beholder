@@ -1,11 +1,25 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+const settingsRepository = require('../repository/settingsRepository');
+const settingsModel = require('../src/models/settingsModel');
+
+
 
 function doLogin(req,res,next){
 
+
+
     const email = req.body.email;
     const password = req.body.password;
+
+const settings = await settingsRepository.getSettingsByEmail(email);
+if(settings)
+{
+  const isValid = bcrypt.compareSync(password,settings.password);
+
+
+}
     if(email == 'contato@luiztools.com.br'
     && bcrypt.compareSync(password, '$2y$12$D1kdpGqNh33WGaHP6HdGnuhDhN.JfuswcqDtmcyAud4onSYJaua9G' )){
       const token =  jwt.sign({ id: 1},process.env.JWT_SECRET, 

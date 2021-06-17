@@ -5,12 +5,10 @@ import Settings from './private/Settings/Settings';
 
 function Routes(){
 
-    const isAuthenticated = localStorage.getItem('token');
-
     function PrivateRoute({ children, ...rest }){
         return (
             <Route {...rest} render={() => {
-                return isAuthenticated
+                return localStorage.getItem('token')
                     ? children
                     : <Redirect to="/" />
             }} />
