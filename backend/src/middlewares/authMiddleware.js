@@ -13,7 +13,10 @@ module.exports = (req, res, next) => {
                 }
             }
         } catch (err) {
-            console.error(err);
+            if (err instanceof jwt.TokenExpiredError)
+                console.error(err.message);
+            else
+                console.error(token, err);
         }
     }
 

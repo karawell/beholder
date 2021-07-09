@@ -22,7 +22,7 @@ module.exports = {
       secretKey: Sequelize.STRING,
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE
-    },)
+    })
   },
 
   down: async (queryInterface, Sequelize) => {

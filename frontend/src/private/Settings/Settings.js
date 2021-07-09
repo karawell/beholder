@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
 import { getSettings, updateSettings } from '../../services/SettingsService';
 import Menu from '../../components/Menu/Menu';
+import Symbols from './Symbols';
+import Footer from '../../components/Footer/Footer';
 
 function Settings() {
 
@@ -9,14 +10,13 @@ function Settings() {
     const inputNewPassword = useRef('');
     const inputConfirmPassword = useRef('');
     const inputApiUrl = useRef('');
+    const inputStreamUrl = useRef('');
     const inputAccessKey = useRef('');
     const inputSecretKey = useRef('');
 
     const [error, setError] = useState('');
 
     const [success, setSuccess] = useState('');
-
-    const history = useHistory();
 
     useEffect(() => {
 
@@ -26,16 +26,12 @@ function Settings() {
             .then(settings => {
                 inputEmail.current.value = settings.email;
                 inputApiUrl.current.value = settings.apiUrl;
+                inputStreamUrl.current.value = settings.streamUrl;
                 inputAccessKey.current.value = settings.accessKey;
             })
             .catch(err => {
-                if (err.response && err.response.status === 401)
-                    return history.push('/');
-
-                if (err.response)
-                    setError(err.response.data);
-                else
-                    setError(err.message);
+                console.error(err.response ? err.response.data : err.message);
+                setError(err.response ? err.response.data : err.message);
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -53,6 +49,7 @@ function Settings() {
             email: inputEmail.current.value,
             password: inputNewPassword.current.value ? inputNewPassword.current.value : null,
             apiUrl: inputApiUrl.current.value,
+            streamUrl: inputStreamUrl.current.value,
             accessKey: inputAccessKey.current.value,
             secretKey: inputSecretKey.current.value ? inputSecretKey.current.value : null,
         }, token)
@@ -70,7 +67,7 @@ function Settings() {
             })
             .catch(error => {
                 setSuccess('');
-                console.error(error.message);
+                console.error(error.response ? error.response.data : error.message);
                 setError(`Can't update the settings.`);
             })
     }
@@ -123,6 +120,14 @@ function Settings() {
                                 <div className="row">
                                     <div className="col-sm-12 mb-3">
                                         <div className="form-group">
+                                            <label htmlFor="streamUrl">STREAM URL</label>
+                                            <input ref={inputStreamUrl} className="form-control" id="streamUrl" type="text" placeholder="Enter the STREAM URL" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-sm-12 mb-3">
+                                        <div className="form-group">
                                             <label htmlFor="accessKey">Access Key</label>
                                             <input ref={inputAccessKey} className="form-control" id="accessKey" type="text" placeholder="Enter the API Access Key" required />
                                         </div>
@@ -157,6 +162,8 @@ function Settings() {
                         </div>
                     </div>
                 </div>
+                <Symbols />
+                <Footer />
             </main>
         </React.Fragment>
     )

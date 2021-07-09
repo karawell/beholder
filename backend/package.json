@@ -22,7 +22,11 @@
     "express-async-errors": "^3.1.1",
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
     "mysql2": "^2.2.5",
-    "sequelize": "^6.6.2"
+    "node-binance-api": "^0.12.5",
+    "sequelize": "^6.6.2",
+    "technicalindicators": "^3.1.0",
+    "ws": "^7.5.0"
   }
 }
