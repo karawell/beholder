@@ -3,6 +3,7 @@ import { getSymbols } from '../../services/SymbolsService';
 
 /**
  * props:
+ * - onlyFavorites
  * - onChange
  */
 function SelectSymbol(props) {
@@ -10,7 +11,11 @@ function SelectSymbol(props) {
     const selectRef = useRef('');
 
     const [symbols, setSymbols] = useState(["LOADING"]);
-    const [onlyFavorites, setOnlyFavorites] = useState(true);
+    const [onlyFavorites, setOnlyFavorites] = useState(showOnlyFavorites());
+
+    function showOnlyFavorites() {
+        return props.onlyFavorites !== null && props.onlyFavorites !== undefined ? props.onlyFavorites : true;
+    }
 
     useEffect(() => {
         const token = localStorage.getItem('token');

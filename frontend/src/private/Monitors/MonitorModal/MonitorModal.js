@@ -56,15 +56,27 @@ function MonitorModal(props) {
                         <div className="form-group">
                             <div className="row">
                                 <div className="col-md-6 mb-3">
-                                    <div className="form-group">
-                                        <label htmlFor="symbol">Symbol:</label>
-                                        <SelectSymbol onChange={onInputChange} symbol={monitor.symbol} />
-                                    </div>
+                                    <MonitorType type={monitor.type} onChange={onInputChange} />
                                 </div>
+                                {
+                                    monitor.type === 'CANDLES'
+                                        ? (
+                                            <div className="col-md-6 mb-3">
+                                                <div className="form-group">
+                                                    <label htmlFor="symbol">Symbol:</label>
+                                                    <SelectSymbol onChange={onInputChange} symbol={monitor.symbol} onlyFavorites={false} />
+                                                </div>
+                                            </div>
+                                        )
+                                        : <React.Fragment></React.Fragment>
+                                }
                             </div>
                             <div className="row">
                                 <div className="col-md-6 mb-3">
-                                    <MonitorType type={monitor.type} onChange={onInputChange} />
+                                    <div className="form-group">
+                                        <label htmlFor="broadcastLabel">Broadcast Label: <span data-bs-toggle="tooltip" data-bs-placement="top" title="Label to broadcast the info via WebSockets" className="badge bg-warning py-1">?</span></label>
+                                        <input type="text" id="broadcastLabel" className="form-control" onChange={onInputChange} defaultValue={monitor.broadcastLabel} placeholder="none" />
+                                    </div>
                                 </div>
                                 <div className={getIntervalClasses(monitor.type)}>
                                     <SelectInterval onChange={onInputChange} interval={monitor.interval} />

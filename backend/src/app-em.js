@@ -1,6 +1,6 @@
 const ordersRepository = require('./repositories/ordersRepository');
 const { getActiveMonitors, monitorTypes } = require('./repositories/monitorsRepository');
-const { RSI, MACD, indexKeys } = require('./utils/indexes');
+const { RSI, MACD, indexKeys, BollingerBands, StochRSI } = require('./utils/indexes');
 
 let WSS, beholder, exchange;
 
@@ -41,7 +41,6 @@ function startBookMonitor(broadcastLabel, logs) {
         }
         else book.push(order);
 
-        //clonar o objeto para não afetar o buffer
         const orderCopy = { ...order };
         delete orderCopy.symbol;
         delete orderCopy.updatedId;
@@ -108,7 +107,7 @@ function processExecutionData(executionData, broadcastLabel) {
 function startUserDataMonitor(broadcastLabel, logs) {
     if (!exchange) return new Error(`Exchange Monitor not initialized yet!`);
 
-    const [balanceBroadcast, executionBroadcast] = broadcastLabel.split(',');
+    const [balanceBroadcast, executionBroadcast] = broadcastLabel ? broadcastLabel.split(',') : [null, null];
 
     loadWallet();
 
@@ -128,18 +127,35 @@ function startUserDataMonitor(broadcastLabel, logs) {
 }
 
 
-function processChartData(symbol, indexes, interval, ohlc) {
-    indexes.map(index => {
-        switch (index) {
-            case indexKeys.RSI: {
-                return beholder.updateMemory(symbol, indexKeys.RSI, interval, RSI(ohlc.close));
+function processChartData(symbol, indexes, interval, ohlc, logs) {
+    if (typeof indexes === 'string') indexes = indexes.split(',');
+    if (indexes && indexes.length > 0) {
+        indexes.map(index => {
+
+            const params = index.split('_');
+            const indexName = params[0];
+            params.splice(0, 1);
+
+            try {
+                let calc;
+                switch (indexName) {
+                    case indexKeys.RSI: calc = RSI(ohlc.close, ...params); break;
+                    case indexKeys.MACD: calc = MACD(ohlc.close, ...params); break;
+                    case indexKeys.SMA: calc = SMA(ohlc.close, ...params); break;
+                    case indexKeys.EMA: calc = EMA(ohlc.close, ...params); break;
+                    case indexKeys.BOLLINGER_BANDS: calc = BollingerBands(ohlc.close, ...params); break;
+                    case indexKeys.STOCH_RSI: calc = StochRSI(ohlc.close, ...params); break;
+                    default: return;
+                }
+
+                if (logs) console.log(`${indexName} calculated: ${JSON.stringify(calc.current)}`);
+
+                return beholder.updateMemory(symbol, indexName, interval, calc);
+            } catch (err) {
+                console.error(`Exchange Monitor => Can't calc the index ${indexName}: ${err.message}`);
             }
-            case indexKeys.MACD: {
-                return beholder.updateMemory(symbol, indexKeys.MACD, interval, MACD(ohlc.close));
-            }
-            default: return;
-        }
-    })
+        })
+    }
 }
 
 function startChartMonitor(symbol, interval, indexes, broadcastLabel, logs) {
@@ -162,22 +178,22 @@ function startChartMonitor(symbol, interval, indexes, broadcastLabel, logs) {
 
         if (broadcastLabel && WSS) WSS.broadcast(lastCandle);
 
-        processChartData(symbol, indexes, interval, ohlc);
+        processChartData(symbol, indexes, interval, ohlc, logs);
     })
 
     console.log(`Chart Monitor has started at ${symbol}_${interval}!`);
 }
 
-function stopChartMonitor(symbol, interval, indexes, logs){
+function stopChartMonitor(symbol, interval, indexes, logs) {
     if (!symbol) return new Error(`You can't stop a Chart Monitor without a symbol!`);
     if (!exchange) return new Error(`Exchange Monitor not initialized yet!`);
 
     exchange.terminateChartStream(symbol, interval);
-    if(logs) console.log(`Chart Monitor ${symbol}_${interval} stopped!`);
+    if (logs) console.log(`Chart Monitor ${symbol}_${interval} stopped!`);
 
     beholder.deleteMemory(symbol, 'LAST_CANDLE', interval);
 
-    if(indexes && Array.isArray(indexes))
+    if (indexes && Array.isArray(indexes))
         indexes.map(ix => beholder.deleteMemory(symbol, ix, interval));
 }
 
@@ -201,7 +217,7 @@ async function init(settings, wssInstance, beholderInstance) {
                 case monitorTypes.CANDLES:
                     return startChartMonitor(monitor.symbol,
                         monitor.interval,
-                        monitor.indexes.split(','),
+                        monitor.indexes ? monitor.indexes.split(',') : [],
                         monitor.broadcastLabel,
                         monitor.logs);
             }
