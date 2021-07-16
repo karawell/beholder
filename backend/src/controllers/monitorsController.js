@@ -68,7 +68,7 @@ async function updateMonitor(req, res, next) {
     const indexes = updatedMonitor.indexes ? updatedMonitor.indexes.split(',') : [];
 
     if (updatedMonitor.isActive) {
-        appEm.stopChartMonitor(updatedMonitor.symbol, updatedMonitor.interval, oldIndexes, updatedMonitor.logs);
+        appEm.stopChartMonitor(currentMonitor.symbol, currentMonitor.interval, oldIndexes, currentMonitor.logs);
         appEm.startChartMonitor(updatedMonitor.symbol, updatedMonitor.interval, indexes, updatedMonitor.broadcastLabel, updatedMonitor.logs);
     }
     else {

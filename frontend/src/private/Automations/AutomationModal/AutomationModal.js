@@ -4,6 +4,8 @@ import ConditionsArea from './ConditionsArea/ConditionsArea';
 import ActionsArea from './ActionsArea/ActionsArea';
 import SwitchInput from '../../../components/SwitchInput/SwitchInput';
 import { saveAutomation } from '../../../services/AutomationsService';
+import { getIndexes } from '../../../services/BeholderService';
+import '../Automations.css';
 
 /**
  * props:
@@ -12,6 +14,7 @@ import { saveAutomation } from '../../../services/AutomationsService';
  */
 function AutomationModal(props) {
 
+    const [indexes, setIndexes] = useState([]);
     const [error, setError] = useState('');
     const [automation, setAutomation] = useState({
         conditions: '',
@@ -42,6 +45,24 @@ function AutomationModal(props) {
     useEffect(() => {
         setAutomation(props.data);
     }, [props.data.id])
+
+    useEffect(() => {
+        if (!automation || !automation.symbol) return;
+
+        const token = localStorage.getItem('token');
+        getIndexes(token)
+            .then(indexes => {
+                const filteredIndexes = indexes.filter(k => k.symbol === automation.symbol);
+                const baseWallet = indexes.find(ix => ix.variable === 'WALLET' && automation.symbol.startsWith(ix.symbol));
+                if (baseWallet) filteredIndexes.splice(0, 0, baseWallet);
+
+                const quoteWallet = indexes.find(ix => ix.variable === 'WALLET' && automation.symbol.endsWith(ix.symbol));
+                if (quoteWallet) filteredIndexes.splice(0, 0, quoteWallet);
+
+                setIndexes(filteredIndexes);
+            })
+            .catch(err => err.response ? err.response.data : err.message);
+    }, [automation.symbol])
 
     return (
         <div className="modal fade" id="modalAutomation" tabIndex="-1" role="dialog" aria-labelledby="modalTitleNotify" aria-hidden="true">
@@ -82,7 +103,7 @@ function AutomationModal(props) {
                         </ul>
                         <div className="tab-content px-3 mb-3" id="tabContent">
                             <div className="tab-pane fade show active pt-3" id="conditions" role="tabpanel" arialabelledby="conditions-tab">
-                                <ConditionsArea />
+                                <ConditionsArea indexes={indexes} conditions={automation.conditions} onChange={onInputChange} symbol={automation.symbol} />
                             </div>
                             <div className="tab-pane fade" id="actions" role="tabpanel" arialabelledby="actions-tab">
                                 <ActionsArea />

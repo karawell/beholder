@@ -54,7 +54,7 @@ function StochRSI(closes, dPeriod = 3, kPeriod = 3, rsiPeriod = 14, stochasticPe
     }
 }
 
-function BollingerBands(closes, period = 2, stdDev = 20) {
+function BollingerBands(closes, period = 20, stdDev = 2) {
     const bbResult = technicalindicators.bollingerbands({
         period,
         stdDev,
