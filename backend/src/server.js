@@ -2,6 +2,7 @@ const database = require('./db');
 const app = require('./app');
 const appWs = require('./app-ws');
 const settingsRepository = require('./repositories/settingsRepository');
+const automationsRepository = require('./repositories/automationsRepository');
 const appEm = require('./app-em');
 const beholder = require('./beholder');
 
@@ -11,8 +12,8 @@ const beholder = require('./beholder');
     if (!settings) return new Error(`There is not settings.`);
 
     console.log('Initializing the Beholder Brain...');
-    //inicializar o beholder aqui
-    beholder.init([]);
+    const automations = await automationsRepository.getActiveAutomations();
+    beholder.init(automations);
 
     console.log('Starting the Server Apps...');
     const server = app.listen(process.env.PORT || 3001, () => {

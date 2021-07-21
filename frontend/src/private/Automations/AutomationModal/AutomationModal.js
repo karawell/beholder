@@ -19,7 +19,8 @@ function AutomationModal(props) {
     const [automation, setAutomation] = useState({
         conditions: '',
         name: '',
-        indexes: ''
+        indexes: '',
+        actions: []
     });
 
     const btnClose = useRef('');
@@ -106,7 +107,7 @@ function AutomationModal(props) {
                                 <ConditionsArea indexes={indexes} conditions={automation.conditions} onChange={onInputChange} symbol={automation.symbol} />
                             </div>
                             <div className="tab-pane fade" id="actions" role="tabpanel" arialabelledby="actions-tab">
-                                <ActionsArea />
+                                <ActionsArea actions={automation.actions} onChange={onInputChange} />
                             </div>
                         </div>
                         <div className="row">

@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const database = require('../db');
+const actionModel = require('./actionModel');
 
 const automationModel = database.define('automation', {
     id: {
@@ -41,6 +42,10 @@ const automationModel = database.define('automation', {
         fields: ['symbol', 'name'],
         unique: true
     }]
+})
+
+automationModel.hasMany(actionModel, {
+    foreignKey: 'automationId'
 })
 
 module.exports = automationModel;

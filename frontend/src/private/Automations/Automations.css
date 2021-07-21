@@ -14,7 +14,7 @@
   font-size: 0.6rem;
 }
 
-.divScroll {
+.divScrollBadges {
   overflow: auto;
   max-height: 100px;
 }

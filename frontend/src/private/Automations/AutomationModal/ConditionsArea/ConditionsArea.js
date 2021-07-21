@@ -97,7 +97,7 @@ function ConditionsArea(props) {
             {
                 conditions
                     ? (
-                        <div className="divScroll">
+                        <div className="divScrollBadges">
                             <div className="d-inline-flex flex-row align-content-start">
                                 {
                                     conditions.map((condition, ix) => (
