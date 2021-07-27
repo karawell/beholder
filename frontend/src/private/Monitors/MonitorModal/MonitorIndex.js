@@ -25,7 +25,8 @@ function MonitorIndex(props) {
         const value = selectIndex.current.value;
         if (value !== 'NONE' && indexes.indexOf(value) === -1) {
             inputPeriod.current.value = inputPeriod.current.value === 'params' ? '' : inputPeriod.current.value;
-            indexes.push(value + '_' + inputPeriod.current.value.split(',').join('_'));
+            const params = inputPeriod.current.value ? '_' + inputPeriod.current.value.split(',').join('_') : '';
+            indexes.push(value + params);
 
             selectIndex.current.value = 'NONE';
             inputPeriod.current.value = '';

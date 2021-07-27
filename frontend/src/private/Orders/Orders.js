@@ -10,10 +10,13 @@ import Pagination from '../../components/Pagination/Pagination';
 import SearchSymbol from '../../components/SearchSymbol/SearchSymbol';
 import ViewOrderModal from './ViewOrderModal';
 import Footer from '../../components/Footer/Footer';
+import Toast from '../../components/Toast/Toast';
 
 function Orders() {
 
     const { symbol } = useParams();
+
+    const [notification, setNotification] = useState({ type: '', text: '' });
 
     const [search, setSearch] = useState(symbol || '');
     const [viewOrder, setViewOrder] = useState({});
@@ -45,7 +48,10 @@ function Orders() {
 
                 setBalances(balances);
             })
-            .catch(err => console.error(err.response ? err.response.data : err.message))
+            .catch(err => {
+                console.error(err.response ? err.response.data : err.message);
+                setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
+            })
     }
 
     function getOrdersCall(token) {
@@ -54,7 +60,10 @@ function Orders() {
                 setOrders(result.rows);
                 setCount(result.count);
             })
-            .catch(err => console.error(err.response ? err.response.data : err.message))
+            .catch(err => {
+                console.error(err.response ? err.response.data : err.message);
+                setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
+            })
     }
 
     useEffect(() => {
@@ -74,11 +83,11 @@ function Orders() {
         history.go(0);
     }
 
-    function onSearchChange(event){
+    function onSearchChange(event) {
         setSearch(event.target.value);
-    }   
+    }
 
-    function onViewClick(event){
+    function onViewClick(event) {
         const id = parseInt(event.target.id.replace("view", ""));
         setViewOrder(orders.find(o => o.id === id));
     }
@@ -129,6 +138,7 @@ function Orders() {
             </main>
             <ViewOrderModal data={viewOrder} />
             <NewOrderModal wallet={balances} onSubmit={onOrderSubmit} />
+            <Toast type={notification.type} text={notification.text} />
         </React.Fragment>
     );
 }

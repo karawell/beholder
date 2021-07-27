@@ -25,4 +25,3 @@ module.exports = {
     return queryInterface.bulkDelete('settings', null, {});
   }
 };
-              

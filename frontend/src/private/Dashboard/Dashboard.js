@@ -10,6 +10,7 @@ import NewOrderModal from '../../components/NewOrder/NewOrderModal';
 import CandleChart from './CandleChart';
 import SelectSymbol from '../../components/SelectSymbol/SelectSymbol';
 import Footer from '../../components/Footer/Footer';
+import Toast from '../../components/Toast/Toast';
 
 function Dashboard() {
 
@@ -22,6 +23,8 @@ function Dashboard() {
     const [balanceState, setBalanceState] = useState({});
 
     const [wallet, setWallet] = useState({});
+
+    const [notification, setNotification] = useState({ type: '', text: '' });
 
     const [chartSymbol, setChartSymbol] = useState("BTCBUSD");
 
@@ -46,7 +49,10 @@ function Dashboard() {
             }
         },
         queryParams: { "token": localStorage.getItem('token') },
-        onError: (err) => console.error(err),
+        onError: (err) => {
+            console.error(err);
+            setNotification({ type: 'error', text: err.message });
+        },
         shouldReconnect: (closeEvent) => true,
         reconnectInterval: 3000
     })
@@ -83,6 +89,7 @@ function Dashboard() {
                 <Footer />
             </main>
             <NewOrderModal wallet={wallet} onSubmit={onOrderSubmit} />
+            <Toast type={notification.type} text={notification.text} />
         </React.Fragment>
     );
 }

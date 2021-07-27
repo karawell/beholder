@@ -110,6 +110,8 @@ async function updateAutomation(req, res, next) {
             return res.status(500).json(err.message);
         }
     }
+    else
+        return res.status(400).json(`Invalid actions!`);
 
     const updatedAutomation = await automationsRepository.updateAutomation(id, newAutomation);
 

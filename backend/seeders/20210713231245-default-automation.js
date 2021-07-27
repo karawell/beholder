@@ -8,7 +8,7 @@ module.exports = {
         name: 'Estratégia Infalível',
         symbol: 'BTCUSDT',
         indexes: 'BTCUSDT:RSI_1m',
-        conditions: "",
+        conditions: "MEMORY['BTCUSDT:RSI_1m'].current>70",
         isActive: false,
         logs: false,
         createdAt: new Date(),
