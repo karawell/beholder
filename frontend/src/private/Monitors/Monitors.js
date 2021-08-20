@@ -130,9 +130,11 @@ function Monitors() {
                         </thead>
                         <tbody>
                             {
-                                monitors.map(monitor => (
-                                    <MonitorRow key={monitor.id} data={monitor} onEditClick={onEditClick} onStartClick={onStartClick} onStopClick={onStopClick} onDeleteClick={onDeleteClick} />
-                                ))
+                                monitors && monitors.length
+                                    ? monitors.map(monitor => (
+                                        <MonitorRow key={monitor.id} data={monitor} onEditClick={onEditClick} onStartClick={onStartClick} onStopClick={onStopClick} onDeleteClick={onDeleteClick} />
+                                    ))
+                                    : <React.Fragment></React.Fragment>
                             }
                         </tbody>
                     </table>

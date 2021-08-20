@@ -1,7 +1,8 @@
 const beholder = require('../beholder');
 
 function getMemory(req, res, next) {
-    res.json(beholder.getMemory());
+    const { symbol, index, interval } = req.params;
+    res.json(beholder.getMemory(symbol, index, interval));
 }
 
 function getMemoryIndexes(req, res, next){

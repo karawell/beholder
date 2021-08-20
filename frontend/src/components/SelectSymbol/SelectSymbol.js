@@ -4,6 +4,7 @@ import { getSymbols } from '../../services/SymbolsService';
 /**
  * props:
  * - onlyFavorites
+ * - disabled
  * - onChange
  */
 function SelectSymbol(props) {
@@ -40,7 +41,8 @@ function SelectSymbol(props) {
 
     useEffect(() => {
         selectRef.current.value = props.symbol;
-    }, [props.symbol]);
+        selectRef.current.disabled = props.disabled;
+    }, [props.symbol, props.disabled]);
 
     function onFavoriteClick(event) {
         setOnlyFavorites(!onlyFavorites);

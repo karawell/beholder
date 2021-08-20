@@ -41,7 +41,11 @@ function Toast(props) {
         notyf.open({
             type: notification.type,
             message: notification.text
-        })
+        })  
+        .on('dismiss', ({ target, event }) => {
+            setNotification(DEFAULT_NOTIFICATION);
+        });
+
         setNotification(DEFAULT_NOTIFICATION);
     }, [notification])
 

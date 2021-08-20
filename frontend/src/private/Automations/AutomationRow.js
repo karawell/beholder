@@ -18,6 +18,13 @@ function AutomationRow(props) {
         return isActive ? "RUNNING" : "STOPPED";
     }
 
+    function getEditModal() {
+        return props.data
+            && props.data.actions
+            && props.data.actions.length
+            && props.data.actions[0].type === 'GRID' ? "#modalGrid" : "#modalAutomation";
+    }
+
     return (
         <tr>
             <td>
@@ -33,7 +40,7 @@ function AutomationRow(props) {
             </td>
             <td>
                 {
-                    <button id={"edit" + props.data.id} type="button" className="btn btn-secondary btn-xs ms-2" title="Edit this Automation" data-bs-toggle="modal" data-bs-target="#modalAutomation" onClick={props.onEditClick}>
+                    <button id={"edit" + props.data.id} type="button" className="btn btn-secondary btn-xs ms-2" title="Edit this Automation" data-bs-toggle="modal" data-bs-target={getEditModal()} onClick={props.onEditClick}>
                         <svg className="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>

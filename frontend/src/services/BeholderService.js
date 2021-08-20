@@ -11,3 +11,12 @@ export async function getIndexes(token) {
     const response = await axios.get(indexesUrl, { headers });
     return response.data;
 }
+
+export async function getMemoryIndex(symbol, index, interval, token) {
+    const headers = {
+        'authorization': token
+    }
+    const indexesUrl = `${BEHOLDER_URL}memory/${symbol}/${index}/${interval}`;
+    const response = await axios.get(indexesUrl, { headers });
+    return response.data;
+}

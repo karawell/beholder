@@ -1,17 +1,17 @@
 import React, { useRef, useState, useEffect } from 'react';
 import SelectSymbol from '../SelectSymbol/SelectSymbol';
-import SymbolPrice from './SymbolPrice';
-import WalletSummary from './WalletSummary';
+import SymbolPrice from '../SymbolPrice/SymbolPrice';
+import WalletSummary from '../WalletSummary/WalletSummary';
 import SelectSide from './SelectSide';
 import OrderType from './OrderType';
 import QuantityInput from './QuantityInput';
 import { getSymbol } from '../../services/SymbolsService';
 import { STOP_TYPES } from '../../services/ExchangeService';
 import { placeOrder } from '../../services/OrdersService';
+import { getMemoryIndex } from '../../services/BeholderService';
 
 /**
  * props:
- * - wallet
  * - onSubmit
  */
 function NewOrderModal(props) {
@@ -44,7 +44,7 @@ function NewOrderModal(props) {
             setIsVisible(true);
         })
 
-    }, [props.wallet])
+    }, [])
 
     const btnClose = useRef('');
     const btnSend = useRef('');
@@ -147,6 +147,38 @@ function NewOrderModal(props) {
 
     }
 
+    const [wallet, setWallet] = useState({
+        base: {
+            symbol: '',
+            qty: 0
+        },
+        quote: {
+            symbol: '',
+            qty: 0
+        }
+    });
+
+    async function loadWallet(symbol) {
+        const token = localStorage.getItem('token');
+        try {
+            const baseQty = await getMemoryIndex(symbol.base, 'WALLET', '', token);
+            const quoteQty = await getMemoryIndex(symbol.quote, 'WALLET', '', token);
+            setWallet({
+                base: { symbol: symbol.base, qty: baseQty },
+                quote: { symbol: symbol.quote, qty: quoteQty }
+            })
+        }
+        catch (err) {
+            console.error(err.response ? err.response.data : err.message);
+            setError(err.response ? err.response.data : err.message);
+        }
+    }
+
+    useEffect(() => {
+        if (!symbol || !symbol.base) return;
+        loadWallet(symbol);
+    }, [symbol])
+
     return (
         <div className="modal fade" id="modalOrder" tabIndex="-1" role="dialog" aria-labelledby="modalTitleNotify" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered" role="document">
@@ -159,7 +191,7 @@ function NewOrderModal(props) {
                         <div className="form-group">
                             <div className="row">
                                 <div className="col-md-6 mb-3">
-                                    <div className="form-group mb-4">
+                                    <div className="form-group">
                                         <label htmlFor="symbol">Symbol</label>
                                         <SelectSymbol onChange={onInputChange} />
                                     </div>.
@@ -175,13 +207,13 @@ function NewOrderModal(props) {
                             <div className="row">
                                 <label>You have:</label>
                             </div>
-                            <WalletSummary wallet={props.wallet} symbol={symbol} />
+                            <WalletSummary wallet={wallet} />
                             <div className="row">
                                 <div className="col-md-6 mb-3">
-                                    <SelectSide side={DEFAULT_ORDER.side} onChange={onInputChange} />
+                                    <SelectSide side={order.side} onChange={onInputChange} />
                                 </div>
                                 <div className="col-md-6 mb-3">
-                                    <OrderType type={DEFAULT_ORDER.type} onChange={onInputChange} />
+                                    <OrderType type={order.type} onChange={onInputChange} />
                                 </div>
                             </div>
                             <div className="row">

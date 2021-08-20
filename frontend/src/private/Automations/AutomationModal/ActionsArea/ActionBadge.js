@@ -23,7 +23,7 @@ function ActionBadge(props) {
                 </svg>
             )
         else if (actionType === 'ORDER') {
-            text = 'order';
+            text = props.action.orderTemplateName || props.action.orderTemplate.name;
             image = (
                 <svg className="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>

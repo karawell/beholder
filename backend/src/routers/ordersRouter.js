@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const ordersController = require('../controllers/ordersController');
 
+router.get('/last', ordersController.getLastOrders);
+
+router.get('/reports/:quote', ordersController.getOrdersReport);
+
 router.get('/:symbol?', ordersController.getOrders);
 
 router.post('/', ordersController.placeOrder);

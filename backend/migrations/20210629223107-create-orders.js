@@ -15,7 +15,7 @@ module.exports = {
         allowNull: false
       },
       orderId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false
       },
       clientOrderId: {
@@ -41,9 +41,9 @@ module.exports = {
       isMaker: Sequelize.BOOLEAN,
       limitPrice: Sequelize.STRING,
       stopPrice: Sequelize.STRING,
-      avgPrice: Sequelize.DECIMAL,
+      avgPrice: Sequelize.DECIMAL(18, 8),
       commission: Sequelize.STRING,
-      net: Sequelize.DECIMAL,
+      net: Sequelize.DECIMAL(18, 8),
       quantity: {
         type: Sequelize.STRING,
         allowNull: false

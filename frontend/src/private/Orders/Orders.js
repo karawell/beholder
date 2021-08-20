@@ -3,7 +3,6 @@ import { useHistory, useLocation, useParams } from 'react-router-dom';
 import Menu from '../../components/Menu/Menu';
 import NewOrderButton from '../../components/NewOrder/NewOrderButton';
 import NewOrderModal from '../../components/NewOrder/NewOrderModal';
-import { getBalance } from '../../services/ExchangeService';
 import { getOrders } from '../../services/OrdersService';
 import OrderRow from './OrderRow';
 import Pagination from '../../components/Pagination/Pagination';
@@ -29,30 +28,9 @@ function Orders() {
     }
 
     const history = useHistory();
-
-    const [balances, setBalances] = useState({});
     const [orders, setOrders] = useState([]);
     const [count, setCount] = useState(0);
     const [page, setPage] = useState(parseInt(getPage()));
-
-    function getBalanceCall(token) {
-        getBalance(token)
-            .then(info => {
-                const balances = Object.entries(info).map(item => {
-                    return {
-                        symbol: item[0],
-                        available: item[1].available,
-                        onOrder: item[1].onOrder
-                    }
-                })
-
-                setBalances(balances);
-            })
-            .catch(err => {
-                console.error(err.response ? err.response.data : err.message);
-                setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
-            })
-    }
 
     function getOrdersCall(token) {
         getOrders(search, page || 1, token)
@@ -68,13 +46,13 @@ function Orders() {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        getBalanceCall(token);
-
+        // eslint-disable-next-line
         getOrdersCall(token);
     }, [page, search])
 
     useEffect(() => {
         return history.listen(location => {
+            // eslint-disable-next-line
             setPage(getPage(location));
         })
     }, [history])
@@ -113,18 +91,17 @@ function Orders() {
                     <table className="table table-hover">
                         <thead>
                             <tr>
-                                <th className="border-gray-200">Symbol</th>
+                                <th className="border-gray-200">Order</th>
                                 <th className="border-gray-200">Date</th>
-                                <th className="border-gray-200">Side</th>
                                 <th className="border-gray-200">Qty</th>
                                 <th className="border-gray-200">Net</th>
                                 <th className="border-gray-200">Status</th>
-                                <th className="border-gray-200">Details</th>
+                                <th className="border-gray-200">View</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                orders
+                                orders && orders.length
                                     ? orders.map(order => (
                                         <OrderRow key={order.clientOrderId} data={order} onClick={onViewClick} />
                                     ))
@@ -137,7 +114,7 @@ function Orders() {
                 <Footer />
             </main>
             <ViewOrderModal data={viewOrder} />
-            <NewOrderModal wallet={balances} onSubmit={onOrderSubmit} />
+            <NewOrderModal onSubmit={onOrderSubmit} />
             <Toast type={notification.type} text={notification.text} />
         </React.Fragment>
     );

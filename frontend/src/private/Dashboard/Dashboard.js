@@ -88,7 +88,7 @@ function Dashboard() {
                 </div>
                 <Footer />
             </main>
-            <NewOrderModal wallet={wallet} onSubmit={onOrderSubmit} />
+            <NewOrderModal onSubmit={onOrderSubmit} />
             <Toast type={notification.type} text={notification.text} />
         </React.Fragment>
     );

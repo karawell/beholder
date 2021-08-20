@@ -7,6 +7,8 @@ import AutomationRow from './AutomationRow';
 import AutomationModal from './AutomationModal/AutomationModal';
 import Toast from '../../components/Toast/Toast';
 import { getAutomations, startAutomation, stopAutomation, deleteAutomation } from '../../services/AutomationsService';
+import NewAutomationButton from './NewAutomationButton';
+import GridModal from './GridModal/GridModal';
 
 function Automations() {
 
@@ -104,14 +106,7 @@ function Automations() {
                     </div>
                     <div className="btn-toolbar mb-2 mb-md-0">
                         <div className="d-inline-flex align-items-center">
-                            <button id="btnNewAutomation" className="btn btn-primary animate-up-2" data-bs-toggle="modal" data-bs-target="#modalAutomation" onClick={onNewAutomationClick}>
-                                <svg className="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                                    </path>
-                                </svg>
-                                New Automation
-                            </button>
+                            <NewAutomationButton onClick={onNewAutomationClick} />
                         </div>
                     </div>
                 </div>
@@ -127,7 +122,9 @@ function Automations() {
                         </thead>
                         <tbody>
                             {
-                                automations.map(automation => (<AutomationRow key={automation.id} data={automation} onEditClick={onEditAutomationClick} onStopClick={onStopAutomationClick} onStartClick={onStartAutomationClick} onDeleteClick={onDeleteAutomationClick} />))
+                                automations && automations.length
+                                    ? automations.map(automation => (<AutomationRow key={automation.id} data={automation} onEditClick={onEditAutomationClick} onStopClick={onStopAutomationClick} onStartClick={onStartAutomationClick} onDeleteClick={onDeleteAutomationClick} />))
+                                    : <React.Fragment></React.Fragment>
                             }
                         </tbody>
                     </table>
@@ -136,6 +133,7 @@ function Automations() {
                 <Footer />
             </main>
             <AutomationModal data={editAutomation} onSubmit={onAutomationSubmit} />
+            <GridModal data={editAutomation} onSubmit={onAutomationSubmit} />
             <Toast type={notification.type} text={notification.text} />
         </React.Fragment>
     )

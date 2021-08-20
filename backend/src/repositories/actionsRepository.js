@@ -3,7 +3,8 @@ const actionModel = require('../models/actionModel');
 const actionsTypes = {
     ALERT_EMAIL: 'ALERT_EMAIL',
     ALERT_SMS: 'ALERT_SMS',
-    ORDER: 'ORDER'
+    ORDER: 'ORDER',
+    GRID: 'GRID'
 }
 
 function insertActions(actions, transaction) {
@@ -17,8 +18,13 @@ function deleteActions(automationId, transaction) {
     })
 }
 
+function getByOrderTemplate(orderTemplateId) {
+    return actionModel.findAll({ where: { orderTemplateId } });
+}
+
 module.exports = {
     insertActions,
     deleteActions,
+    getByOrderTemplate,
     actionsTypes
 }

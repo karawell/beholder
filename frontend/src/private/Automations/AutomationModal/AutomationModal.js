@@ -78,7 +78,7 @@ function AutomationModal(props) {
                             <div className="row">
                                 <div className="col-md-6 mb-3">
                                     <label htmlFor="symbol">Symbol:</label>
-                                    <SelectSymbol onChange={onInputChange} symbol={automation.symbol} onlyFavorites={false} />
+                                    <SelectSymbol onChange={onInputChange} symbol={automation.symbol} onlyFavorites={false} disabled={automation.id > 0} />
                                 </div>
                             </div>
                         </div>
@@ -107,7 +107,7 @@ function AutomationModal(props) {
                                 <ConditionsArea indexes={indexes} conditions={automation.conditions} onChange={onInputChange} symbol={automation.symbol} />
                             </div>
                             <div className="tab-pane fade" id="actions" role="tabpanel" arialabelledby="actions-tab">
-                                <ActionsArea actions={automation.actions} onChange={onInputChange} />
+                                <ActionsArea actions={automation.actions} onChange={onInputChange} symbol={automation.symbol} />
                             </div>
                         </div>
                         <div className="row">

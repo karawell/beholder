@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const database = require('../db');
 
+const automationModel = require('./automationModel');
+
 const orderModel = database.define('order', {
     id: {
         type: Sequelize.INTEGER,
@@ -14,7 +16,7 @@ const orderModel = database.define('order', {
         allowNull: false
     },
     orderId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false
     },
     clientOrderId: {
@@ -40,9 +42,9 @@ const orderModel = database.define('order', {
     isMaker: Sequelize.BOOLEAN,
     limitPrice: Sequelize.STRING,
     stopPrice: Sequelize.STRING,
-    avgPrice: Sequelize.DECIMAL,
+    avgPrice: Sequelize.DECIMAL(18,8),
     commission: Sequelize.STRING,
-    net: Sequelize.DECIMAL,
+    net: Sequelize.DECIMAL(18,8),
     quantity: {
         type: Sequelize.STRING,
         allowNull: false
@@ -58,6 +60,10 @@ const orderModel = database.define('order', {
     }, {
         fields: ['symbol']
     }]
+})
+
+orderModel.belongsTo(automationModel, {
+    foreignKey: 'automationId'
 })
 
 module.exports = orderModel;

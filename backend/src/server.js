@@ -24,4 +24,13 @@ const beholder = require('./beholder');
 
     await appEm.init(settings, wss, beholder);
 
+    // setTimeout(async () => {
+    //     try {
+    //         const result = await beholder.placeOrder(settings, automations[2], automations[2].actions[0])
+    //         console.log(result);
+    //     } catch (err) {
+    //         console.error(err);
+    //     }
+    // }, 5000)
+
 })();

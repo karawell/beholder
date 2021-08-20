@@ -19,6 +19,7 @@ function Symbols() {
 
     useEffect(() => {
         return history.listen(location => {
+            // eslint-disable-next-line
             setPage(getPage(location));
         })
     }, [history])
@@ -64,6 +65,7 @@ function Symbols() {
     }
 
     useEffect(() => {
+        // eslint-disable-next-line
         loadSymbols(quote);
     }, [isSyncing, quote, page])
 

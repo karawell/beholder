@@ -7,6 +7,7 @@ module.exports = (settings) => {
     const binance = new Binance({
         APIKEY: settings.accessKey,
         APISECRET: settings.secretKey,
+        recvWindow: 60000,
         urls: {
             base: settings.apiUrl.endsWith('/') ? settings.apiUrl : settings.apiUrl + '/',
             stream: settings.streamUrl.endsWith('/') ? settings.streamUrl : settings.streamUrl + '/',
@@ -56,9 +57,12 @@ module.exports = (settings) => {
         )
     }
 
-    async function chartStream(symbol, interval, callback){
-        //const binance = new Binance();
+    async function chartStream(symbol, interval, callback) {
         binance.websockets.chart(symbol, interval, (symbol, interval, chart) => {
+            const tick = binance.last(chart);
+            if (tick && chart[tick] && chart[tick].isFinal === false)
+                delete chart[tick];
+
             const ohlc = binance.ohlc(chart);
             callback(ohlc);
         })

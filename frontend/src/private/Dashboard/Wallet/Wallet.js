@@ -60,11 +60,15 @@ function Wallet(props) {
                         <tbody>
                             {
                                 balances.map(item => (
-                                    <tr key={`wallet${item.symbol}`}>
-                                        <td className="text-gray-900">{item.symbol}</td>
-                                        <td className="text-gray-900">{item.available.substring(0, 8)}</td>
-                                        <td className="text-gray-900">{item.onOrder.substring(0, 8)}</td>
-                                    </tr>
+                                    !parseFloat(item.available) && !parseFloat(item.onOrder)
+                                        ? <React.Fragment></React.Fragment>
+                                        : (
+                                            <tr key={`wallet${item.symbol}`}>
+                                                <td className="text-gray-900">{item.symbol}</td>
+                                                <td className="text-gray-900">{item.available.substring(0, 10)}</td>
+                                                <td className="text-gray-900">{item.onOrder.substring(0, 10)}</td>
+                                            </tr>
+                                        )
                                 ))
                             }
                         </tbody>

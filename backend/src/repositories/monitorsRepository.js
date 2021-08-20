@@ -30,7 +30,8 @@ function getMonitors(page = 1) {
         where: {},
         order: [['isActive', 'DESC'], ['isSystemMon', 'DESC'], ['symbol', 'ASC']],
         limit: 10,
-        offset: 10 * (page - 1)
+        offset: 10 * (page - 1),
+        distinct: true
     })
 }
 

@@ -2,7 +2,7 @@ const symbolModel = require('../models/symbolModel');
 const Sequelize = require('sequelize');
 
 function getSymbols() {
-    return symbolModel.findAll();
+    return symbolModel.findAll({ order: [['symbol', 'ASC']] });
 }
 
 function searchSymbols(search, onlyFavorites = false, page = 1) {
@@ -10,7 +10,8 @@ function searchSymbols(search, onlyFavorites = false, page = 1) {
         where: {},
         order: [['symbol', 'ASC']],
         limit: 10,
-        offset: 10 * (page - 1)
+        offset: 10 * (page - 1),
+        distinct: true
     }
 
     if (search) {
@@ -49,6 +50,12 @@ async function updateSymbol(symbol, newSymbol) {
 
     if (newSymbol.quote && newSymbol.quote !== currentSymbol.quote)
         currentSymbol.quote = newSymbol.quote;
+
+    if (newSymbol.stepSize && newSymbol.stepSize !== currentSymbol.stepSize)
+        currentSymbol.stepSize = newSymbol.stepSize;
+
+    if (newSymbol.tickSize && newSymbol.tickSize !== currentSymbol.tickSize)
+        currentSymbol.tickSize = newSymbol.tickSize;
 
     if (newSymbol.isFavorite !== null && newSymbol.isFavorite !== undefined
         && newSymbol.isFavorite !== currentSymbol.isFavorite)
