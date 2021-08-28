@@ -29,7 +29,10 @@ function init(automations) {
         BRAIN = {};
         BRAIN_INDEX = {};
 
-        automations.map(auto => updateBrain(auto));
+        automations.map(auto => {
+            if (auto.isActive && !auto.schedule)
+                updateBrain(auto)
+        });
     }
     finally {
         LOCK_BRAIN = false;
@@ -359,6 +362,8 @@ async function generateGrids(automation, levels, quantity, transaction) {
         icebergQtyMultiplier: 1
     }, transaction);
 
+    if(!MEMORY[`${automation.symbol}:BOOK`]) throw new Error(`Beholder don't have info about ${automation.symbol}'s book in memory.`);
+
     const currenPrice = parseFloat(MEMORY[`${automation.symbol}:BOOK`].current.bestAsk);
     const differences = [];
 
@@ -457,12 +462,12 @@ async function evalDecision(memoryKey, automation) {
         const isChecked = indexes.every(ix => MEMORY[ix] !== null && MEMORY[ix] !== undefined);
         if (!isChecked) return false;
 
-        const invertedCondition = automation.actions[0].type === 'GRID' ? '' : invertCondition(memoryKey, automation.conditions);
+        const invertedCondition = automation.actions[0].type === 'GRID' || automation.schedule ? '' : invertCondition(memoryKey, automation.conditions);
         const evalCondition = automation.conditions + (invertedCondition ? ` && ${invertedCondition}` : '');
 
         if (LOGS) console.log(`Beholder is trying to evaluate a condition ${evalCondition}\n at automation: ${automation.name}`);
 
-        const isValid = eval(evalCondition);
+        const isValid = evalCondition ? eval(evalCondition) : true;
         if (!isValid) return false;
 
         if (!automation.actions || !automation.actions.length) {
@@ -615,5 +620,6 @@ module.exports = {
     init,
     calcQty,
     placeOrder,
-    generateGrids
+    generateGrids,
+    evalDecision
 }

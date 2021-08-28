@@ -79,7 +79,7 @@ function VariableInput(props) {
                 <option value="==">equals</option>
                 <option value="!=">not equals</option>
             </select>
-            <input type="text" ref={variableRef} id="variable" list="variables" className="form-select" onChange={onVariableChange} placeholder={index.example}  />
+            <input type="text" ref={variableRef} id="variable" list="variables" className="form-select" onChange={onVariableChange} placeholder={`${index.example}`}  />
             <datalist id="variables">
                 {
                     indexes && Array.isArray(indexes)

@@ -10,12 +10,18 @@ import React from 'react';
  */
 function AutomationRow(props) {
 
-    function getActiveClass(isActive) {
-        return isActive ? "text-success" : "text-danger";
+    function getActiveClass(automation) {
+        if (automation.schedule)
+            return automation.isActive ? "text-info" : "text-danger";
+        else
+            return automation.isActive ? "text-success" : "text-danger";
     }
 
-    function getActiveText(isActive) {
-        return isActive ? "RUNNING" : "STOPPED";
+    function getActiveText(automation) {
+        if (automation.schedule)
+            return automation.isActive ? "SCHEDULED" : "STOPPED";
+        else
+            return automation.isActive ? "RUNNING" : "STOPPED";
     }
 
     function getEditModal() {
@@ -34,8 +40,8 @@ function AutomationRow(props) {
                 {props.data.name}
             </td>
             <td>
-                <span className={getActiveClass(props.data.isActive)}>
-                    {getActiveText(props.data.isActive)}
+                <span className={getActiveClass(props.data)}>
+                    {getActiveText(props.data)}
                 </span>
             </td>
             <td>

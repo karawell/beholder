@@ -51,7 +51,10 @@ function Automations() {
     }, [page])
 
     function onNewAutomationClick(event) {
-        setEditAutomation(DEFAULT_AUTOMATION);
+        if (event.target.id === 'liScheduled')
+            setEditAutomation({ ...DEFAULT_AUTOMATION, schedule: `${new Date()}` });
+        else
+            setEditAutomation(DEFAULT_AUTOMATION);
     }
 
     function onEditAutomationClick(event) {
@@ -116,7 +119,7 @@ function Automations() {
                             <tr>
                                 <th className="border-gray-200">Symbol</th>
                                 <th className="border-gray-200">Name</th>
-                                <th className="border-gray-200">Active</th>
+                                <th className="border-gray-200">status</th>
                                 <th className="border-gray-200">Actions</th>
                             </tr>
                         </thead>

@@ -5,15 +5,20 @@ const settingsRepository = require('./repositories/settingsRepository');
 const automationsRepository = require('./repositories/automationsRepository');
 const appEm = require('./app-em');
 const beholder = require('./beholder');
+const agenda = require('./agenda');
 
 (async () => {
     console.log('Getting the default settings...');
     const settings = await settingsRepository.getDefaultSettings();
     if (!settings) return new Error(`There is not settings.`);
+    
+    const automations = await automationsRepository.getActiveAutomations();
 
     console.log('Initializing the Beholder Brain...');
-    const automations = await automationsRepository.getActiveAutomations();
     beholder.init(automations);
+
+    console.log('Initializing the Beholder Agenda...');
+    agenda.init(automations);
 
     console.log('Starting the Server Apps...');
     const server = app.listen(process.env.PORT || 3001, () => {
@@ -23,14 +28,5 @@ const beholder = require('./beholder');
     const wss = appWs(server);
 
     await appEm.init(settings, wss, beholder);
-
-    // setTimeout(async () => {
-    //     try {
-    //         const result = await beholder.placeOrder(settings, automations[2], automations[2].actions[0])
-    //         console.log(result);
-    //     } catch (err) {
-    //         console.error(err);
-    //     }
-    // }, 5000)
 
 })();

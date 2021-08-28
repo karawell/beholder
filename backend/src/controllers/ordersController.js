@@ -76,7 +76,7 @@ async function getOrdersReport(req, res, next) {
 
     const automationsObj = {};
     orders.forEach(o => {
-        const automationId = o.automationId ?? 'M';
+        const automationId = o.automationId || 'M';
         if (!automationsObj[automationId]) {
             automationsObj[automationId] = {
                 name: o.automationId ? o['automation.name'] : 'Manual',

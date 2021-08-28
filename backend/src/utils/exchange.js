@@ -61,7 +61,7 @@ module.exports = (settings) => {
         binance.websockets.chart(symbol, interval, (symbol, interval, chart) => {
             const tick = binance.last(chart);
             if (tick && chart[tick] && chart[tick].isFinal === false)
-                delete chart[tick];
+                return;
 
             const ohlc = binance.ohlc(chart);
             callback(ohlc);

@@ -145,6 +145,7 @@ function NewOrderModal(props) {
             }
         }
 
+        setOrder(prevState => ({ ...prevState, price: parseFloat(book.bid) }));
     }
 
     const [wallet, setWallet] = useState({
@@ -179,6 +180,10 @@ function NewOrderModal(props) {
         loadWallet(symbol);
     }, [symbol])
 
+    function onSymbolChange(event) {
+        setOrder({ ...DEFAULT_ORDER, symbol: event.target.value });
+    }
+
     return (
         <div className="modal fade" id="modalOrder" tabIndex="-1" role="dialog" aria-labelledby="modalTitleNotify" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered" role="document">
@@ -193,7 +198,7 @@ function NewOrderModal(props) {
                                 <div className="col-md-6 mb-3">
                                     <div className="form-group">
                                         <label htmlFor="symbol">Symbol</label>
-                                        <SelectSymbol onChange={onInputChange} />
+                                        <SelectSymbol onChange={onSymbolChange} />
                                     </div>.
                                 </div>
                                 <div className="col-md-6 mb-3">
@@ -220,16 +225,16 @@ function NewOrderModal(props) {
                                 <div className={getPriceClasses(order.type)}>
                                     <div className="form-group">
                                         <label htmlFor="price">Unit Price:</label>
-                                        <input type="number" className="form-control" id="price" placeholder={order.price} onChange={onInputChange} />
+                                        <input type="number" className="form-control" id="price" placeholder={order.price ? order.price : 0} onChange={onInputChange} />
                                     </div>
                                 </div>
                                 <div className="col-md-6 mb-3">
-                                    <QuantityInput id="quantity" text="Quantity:" wallet={props.wallet} price={order.price} symbol={symbol} onChange={onInputChange} />
+                                    <QuantityInput id="quantity" text="Quantity:" wallet={wallet} price={order.price} symbol={symbol} onChange={onInputChange} />
                                 </div>
                             </div>
                             <div className="row">
                                 <div className={getIcebergClasses(order.type)}>
-                                    <QuantityInput id="icebergQty" text="Iceberg Qty:" wallet={props.wallet} price={order.price} symbol={symbol} onChange={onInputChange} />
+                                    <QuantityInput id="icebergQty" text="Iceberg Qty:" wallet={wallet} price={order.price} symbol={symbol} onChange={onInputChange} />
                                 </div>
                                 <div className={getStopPriceClasses(order.type)}>
                                     <div className="form-group">

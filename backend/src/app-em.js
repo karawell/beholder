@@ -1,6 +1,6 @@
 const ordersRepository = require('./repositories/ordersRepository');
 const { getActiveMonitors, monitorTypes } = require('./repositories/monitorsRepository');
-const { RSI, MACD, indexKeys, BollingerBands, StochRSI, EMA, SMA } = require('./utils/indexes');
+const { execCalc, indexKeys } = require('./utils/indexes');
 
 let WSS, beholder, exchange;
 
@@ -169,28 +169,15 @@ async function processChartData(symbol, indexes, interval, ohlc, logs) {
         const indexName = params[0];
         params.splice(0, 1);
 
-        let calc;
-
         try {
-
-            switch (indexName) {
-                case indexKeys.RSI: calc = RSI(ohlc.close, ...params); break;
-                case indexKeys.MACD: calc = MACD(ohlc.close, ...params); break;
-                case indexKeys.BOLLINGER_BANDS: calc = BollingerBands(ohlc.close, ...params); break;
-                case indexKeys.EMA: calc = EMA(ohlc.close, ...params); break;
-                case indexKeys.SMA: calc = SMA(ohlc.close, ...params); break;
-                case indexKeys.STOCH_RSI: calc = StochRSI(ohlc.close, ...params); break;
-                default: return false;
-            }
+            const calc = execCalc(indexName, ohlc, ...params);
+            if (logs) console.log(`${index} calculated: ${JSON.stringify(calc.current ? calc.current : calc)}`);
+            return beholder.updateMemory(symbol, index, interval, calc, calc.current !== undefined);
         } catch (err) {
             console.error(`Exchange Monitor => Can't calc the index ${index}:`);
             console.error(err);
             return false;
         }
-
-        if (logs) console.log(`${index} calculated: ${JSON.stringify(calc.current)}`);
-
-        return beholder.updateMemory(symbol, index, interval, calc);
     }));
 }
 

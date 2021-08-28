@@ -5,6 +5,7 @@ import ActionsArea from './ActionsArea/ActionsArea';
 import SwitchInput from '../../../components/SwitchInput/SwitchInput';
 import { saveAutomation } from '../../../services/AutomationsService';
 import { getIndexes } from '../../../services/BeholderService';
+import ScheduleArea from './ScheduleArea/ScheduleArea';
 import '../Automations.css';
 
 /**
@@ -44,8 +45,9 @@ function AutomationModal(props) {
     }
 
     useEffect(() => {
+        if (!props.data) return;
         setAutomation(props.data);
-    }, [props.data.id])
+    }, [props.data])
 
     useEffect(() => {
         if (!automation || !automation.symbol) return;
@@ -70,7 +72,7 @@ function AutomationModal(props) {
             <div className="modal-dialog modal-dialog-centered" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <p className="modal-title" id="modalTitleNotify">{props.data.id ? 'Edit ' : 'New '}Automation</p>
+                        <p className="modal-title" id="modalTitleNotify">{props.data.id ? 'Edit ' : 'New '}{props.data.schedule ? 'Scheduled ' : ''}Automation</p>
                         <button ref={btnClose} type="button" className="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
                     </div>
                     <div className="modal-body">
@@ -90,6 +92,11 @@ function AutomationModal(props) {
                                 </div>
                             </div>
                         </div>
+                        {
+                            automation.schedule
+                                ? <ScheduleArea schedule={automation.schedule} onChange={onInputChange} />
+                                : <React.Fragment></React.Fragment>
+                        }
                         <ul className="nav nav-tabs" id="tabs" role="tablist">
                             <li className="nav-item" role="presentation">
                                 <button className="nav-link active" id="conditions-tab" data-bs-toggle="tab" data-bs-target="#conditions" type="button" role="tab" aria-controls="conditions" aria-selected="true">

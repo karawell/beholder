@@ -5,9 +5,10 @@ const db = require('../db');
 const ordersRepository = require('../repositories/ordersRepository');
 const orderTemplatesRepository = require('../repositories/orderTemplatesRepository');
 const gridsRepository = require('../repositories/gridsRepository');
+const agenda = require('../agenda');
 
 function validateConditions(conditions) {
-    return /^(MEMORY\[\'.+?\'\](\..+?)?[><=!]+([0-9\.]+|(\'.+?\')|MEMORY\[\'.+?\'\](\..+?)?)( && )?)+$/i.test(conditions);
+    return /^(MEMORY\[\'.+?\'\](\..+?)?[><=!]+([0-9\.]+|(\'.+?\')|false|true|MEMORY\[\'.+?\'\](\..+?)?)( && )?)+$/i.test(conditions);
 }
 
 async function startAutomation(req, res, next) {
@@ -18,7 +19,7 @@ async function startAutomation(req, res, next) {
     automation.isActive = true;
 
     if (automation.schedule) {
-        //adicionar lógica no motor de agendamento
+        agenda.addSchedule(automation);
     } else
         beholder.updateBrain(automation.get({ plain: true }));
 
@@ -37,7 +38,7 @@ async function stopAutomation(req, res, next) {
     automation.isActive = false;
 
     if (automation.schedule) {
-        //remover do motor de agendamento
+        agenda.cancelSchedule(automation.id);
     }
     else
         beholder.deleteBrain(automation.get({ plain: true }));
@@ -110,7 +111,7 @@ async function insertAutomation(req, res, next) {
 
     if (savedAutomation.isActive) {
         if (savedAutomation.schedule) {
-            //adicionar no motor de agendamento
+            agenda.addSchedule(savedAutomation.get({ plain: true }));
         }
         else
             beholder.updateBrain(savedAutomation);
@@ -120,6 +121,7 @@ async function insertAutomation(req, res, next) {
 }
 
 async function updateAutomation(req, res, next) {
+
     const id = req.params.id;
     const newAutomation = req.body;
 
@@ -167,8 +169,8 @@ async function updateAutomation(req, res, next) {
 
     if (updatedAutomation.isActive) {
         if (updatedAutomation.schedule) {
-            //remover agendamento antigo
-            //adicionar agendamento novo
+            agenda.cancelSchedule(updatedAutomation.id);
+            agenda.addSchedule(updatedAutomation.get({ plain: true }));
         }
         else {
             beholder.deleteBrain(updatedAutomation);
@@ -177,13 +179,13 @@ async function updateAutomation(req, res, next) {
     }
     else {
         if (updatedAutomation.schedule) {
-            //remover agendamento antigo
+            agenda.cancelSchedule(updatedAutomation.id);
         }
         else
             beholder.deleteBrain(updatedAutomation);
-
-        res.json(updatedAutomation);
     }
+
+    res.json(updatedAutomation);
 }
 
 async function deleteAutomation(req, res, next) {
@@ -191,8 +193,8 @@ async function deleteAutomation(req, res, next) {
     const currentAutomation = await automationsRepository.getAutomation(id);
 
     if (currentAutomation.isActive) {
-        if (updatedAutomation.schedule) {
-            //remover agendamento antigo
+        if (currentAutomation.schedule) {
+            agenda.cancelSchedule(currentAutomation.id);
         }
         else
             beholder.deleteBrain(currentAutomation.get({ plain: true }));
