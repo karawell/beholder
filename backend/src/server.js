@@ -6,27 +6,36 @@ const automationsRepository = require('./repositories/automationsRepository');
 const appEm = require('./app-em');
 const beholder = require('./beholder');
 const agenda = require('./agenda');
+const logger = require('./utils/logger');
+
+process.on('unhandledRejection', (reason) => {
+    logger.error(`Unhandled Rejection: ${reason}`);
+});
+
+process.on('uncaughtException', (err) => {
+    logger.error(`Uncaught Exception: ${err.message}`, err);
+    process.exit(1);
+});
 
 (async () => {
-    console.log('Getting the default settings...');
+    logger.info('Getting the default settings...');
     const settings = await settingsRepository.getDefaultSettings();
-    if (!settings) return new Error(`There is not settings.`);
-    
+    if (!settings) throw new Error(`There are no settings in the database.`);
+
     const automations = await automationsRepository.getActiveAutomations();
 
-    console.log('Initializing the Beholder Brain...');
+    logger.info('Initializing the Beholder Brain...');
     beholder.init(automations);
 
-    console.log('Initializing the Beholder Agenda...');
+    logger.info('Initializing the Beholder Agenda...');
     agenda.init(automations);
 
-    console.log('Starting the Server Apps...');
+    logger.info('Starting the Server Apps...');
     const server = app.listen(process.env.PORT || 3001, () => {
-        console.log('App is running at ' + process.env.PORT);
-    })
+        logger.info(`App is running on port ${process.env.PORT || 3001}`);
+    });
 
     const wss = appWs(server);
 
     await appEm.init(settings, wss, beholder);
-
 })();

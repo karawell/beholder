@@ -30,6 +30,7 @@
     "sequelize": "^6.37.3",
     "technicalindicators": "^3.1.0",
     "twilio": "^5.3.0",
+    "winston": "^3.19.0",
     "ws": "^8.18.0"
   }
 }

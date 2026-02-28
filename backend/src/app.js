@@ -18,6 +18,15 @@ app.use(express.json());
 
 app.use(morgan('dev'));
 
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        timestamp: new Date()
+    });
+});
+
 app.post('/login', authController.doLogin);
 
 const settingsRouter = require('./routers/settingsRouter');

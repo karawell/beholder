@@ -1,18 +1,19 @@
 const ordersRepository = require('./repositories/ordersRepository');
 const { getActiveMonitors, monitorTypes } = require('./repositories/monitorsRepository');
 const { execCalc, indexKeys } = require('./utils/indexes');
+const logger = require('./utils/logger');
 
 let WSS, beholder, exchange, settings;
 
 const RECONNECT_INTERVAL = 5000;
 
 function scheduleRestart(monitorFn, label) {
-    console.error(`Monitor ${label} failed. Restarting in ${RECONNECT_INTERVAL / 1000}s...`);
+    logger.warn(`Monitor ${label} failed. Restarting in ${RECONNECT_INTERVAL / 1000}s...`);
     setTimeout(() => {
         try {
             monitorFn();
         } catch (err) {
-            console.error(`Monitor ${label} failed to restart:`, err.message);
+            logger.error(`Monitor ${label} failed to restart: ${err.message}`);
             scheduleRestart(monitorFn, label);
         }
     }, RECONNECT_INTERVAL);
@@ -38,7 +39,7 @@ function startMiniTickerMonitor(broadcastLabel, logs) {
         if (broadcastLabel && WSS)
             WSS.broadcast({ [broadcastLabel]: markets });
     })
-    console.log(`Mini-Ticker Monitor has started at ${broadcastLabel}!`);
+    logger.info(`Mini-Ticker Monitor has started at ${broadcastLabel}!`);
     return () => startMiniTickerMonitor(broadcastLabel, logs);
 }
 
@@ -75,7 +76,7 @@ function startBookMonitor(broadcastLabel, logs) {
         const results = await beholder.updateMemory(order.symbol, indexKeys.BOOK, null, newMemory);
         if (results) results.map(r => WSS.broadcast({ notification: r }));
     })
-    console.log(`Book Monitor has started at ${broadcastLabel}!`);
+    logger.info(`Book Monitor has started at ${broadcastLabel}!`);
     return () => startBookMonitor(broadcastLabel, logs);
 }
 
@@ -148,7 +149,7 @@ function processExecutionData(executionData, broadcastLabel) {
                     WSS.broadcast({ [broadcastLabel]: orderCopy });
             }
         } catch (err) {
-            console.error(err)
+            logger.error(err);
         }
     }, 3000)
 }
@@ -172,7 +173,7 @@ function startUserDataMonitor(broadcastLabel, logs) {
             processExecutionData(executionData, executionBroadcast);
         }
     )
-    console.log(`User Data Monitor has started at ${broadcastLabel}!`);
+    logger.info(`User Data Monitor has started at ${broadcastLabel}!`);
     return () => startUserDataMonitor(broadcastLabel, logs);
 }
 
@@ -191,8 +192,7 @@ async function processChartData(symbol, indexes, interval, ohlc, logs) {
             if (logs) console.log(`${index} calculated: ${JSON.stringify(calc.current ? calc.current : calc)}`);
             return beholder.updateMemory(symbol, index, interval, calc, calc.current !== undefined);
         } catch (err) {
-            console.error(`Exchange Monitor => Can't calc the index ${index}:`);
-            console.error(err);
+            logger.error(`Exchange Monitor => Can't calc the index ${index}: ${err.message}`);
             return false;
         }
     }));
@@ -223,7 +223,7 @@ function startChartMonitor(symbol, interval, indexes, broadcastLabel, logs) {
         if (results) results.map(r => WSS.broadcast({ notification: r }));
     })
 
-    console.log(`Chart Monitor has started at ${symbol}_${interval}!`);
+    logger.info(`Chart Monitor has started at ${symbol}_${interval}!`);
 }
 
 function stopChartMonitor(symbol, interval, indexes, logs) {
@@ -278,7 +278,7 @@ async function init(monitorSettings, wssInstance, beholderInstance) {
         await beholder.updateMemory(order.symbol, indexKeys.LAST_ORDER, null, orderCopy, false);
     }))
 
-    console.log('App Exchange Monitor is running!')
+    logger.info('App Exchange Monitor is running!')
 }
 
 function getLightOrder(order) {
