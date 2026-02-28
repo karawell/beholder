@@ -50,10 +50,11 @@ module.exports = (settings) => {
 
     function userDataStream(balanceCallback, executionCallback, listStatusCallback) {
         binance.websockets.userData(
+            null,
             balance => balanceCallback(balance),
             executionData => executionCallback(executionData),
             subscribedData => console.log(`userDataStream:subscribed: ${subscribedData}`),
-            listStatusData => listStatusCallback(listStatusData)
+            listStatusData => listStatusCallback ? listStatusCallback(listStatusData) : null
         )
     }
 
@@ -63,7 +64,14 @@ module.exports = (settings) => {
             if (tick && chart[tick] && chart[tick].isFinal === false)
                 return;
 
-            const ohlc = binance.ohlc(chart);
+            const ohlc = { open: [], high: [], low: [], close: [], volume: [] };
+            Object.values(chart).forEach(candle => {
+                ohlc.open.push(parseFloat(candle.open));
+                ohlc.high.push(parseFloat(candle.high));
+                ohlc.low.push(parseFloat(candle.low));
+                ohlc.close.push(parseFloat(candle.close));
+                ohlc.volume.push(parseFloat(candle.volume));
+            });
             callback(ohlc);
         })
     }

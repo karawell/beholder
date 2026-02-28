@@ -2,7 +2,21 @@ const ordersRepository = require('./repositories/ordersRepository');
 const { getActiveMonitors, monitorTypes } = require('./repositories/monitorsRepository');
 const { execCalc, indexKeys } = require('./utils/indexes');
 
-let WSS, beholder, exchange;
+let WSS, beholder, exchange, settings;
+
+const RECONNECT_INTERVAL = 5000;
+
+function scheduleRestart(monitorFn, label) {
+    console.error(`Monitor ${label} failed. Restarting in ${RECONNECT_INTERVAL / 1000}s...`);
+    setTimeout(() => {
+        try {
+            monitorFn();
+        } catch (err) {
+            console.error(`Monitor ${label} failed to restart:`, err.message);
+            scheduleRestart(monitorFn, label);
+        }
+    }, RECONNECT_INTERVAL);
+}
 
 function startMiniTickerMonitor(broadcastLabel, logs) {
     if (!exchange) return new Error(`Exchange Monitor not initialized yet!`);
@@ -25,6 +39,7 @@ function startMiniTickerMonitor(broadcastLabel, logs) {
             WSS.broadcast({ [broadcastLabel]: markets });
     })
     console.log(`Mini-Ticker Monitor has started at ${broadcastLabel}!`);
+    return () => startMiniTickerMonitor(broadcastLabel, logs);
 }
 
 let book = [];
@@ -61,6 +76,7 @@ function startBookMonitor(broadcastLabel, logs) {
         if (results) results.map(r => WSS.broadcast({ notification: r }));
     })
     console.log(`Book Monitor has started at ${broadcastLabel}!`);
+    return () => startBookMonitor(broadcastLabel, logs);
 }
 
 async function loadWallet() {
@@ -157,6 +173,7 @@ function startUserDataMonitor(broadcastLabel, logs) {
         }
     )
     console.log(`User Data Monitor has started at ${broadcastLabel}!`);
+    return () => startUserDataMonitor(broadcastLabel, logs);
 }
 
 
@@ -222,23 +239,28 @@ function stopChartMonitor(symbol, interval, indexes, logs) {
         indexes.map(ix => beholder.deleteMemory(symbol, ix, interval));
 }
 
-async function init(settings, wssInstance, beholderInstance) {
-    if (!settings || !beholderInstance) throw new Error(`Can't start Exchange Monitor without settings and/or Beholder.`);
+async function init(monitorSettings, wssInstance, beholderInstance) {
+    if (!monitorSettings || !beholderInstance) throw new Error(`Can't start Exchange Monitor without settings and/or Beholder.`);
 
     WSS = wssInstance;
     beholder = beholderInstance;
+    settings = monitorSettings;
     exchange = require('./utils/exchange')(settings);
 
     const monitors = await getActiveMonitors();
     monitors.map(monitor => {
         setTimeout(() => {
+            let restartFn;
             switch (monitor.type) {
                 case monitorTypes.MINI_TICKER:
-                    return startMiniTickerMonitor(monitor.broadcastLabel, monitor.logs);
+                    restartFn = startMiniTickerMonitor(monitor.broadcastLabel, monitor.logs);
+                    break;
                 case monitorTypes.BOOK:
-                    return startBookMonitor(monitor.broadcastLabel, monitor.logs);
+                    restartFn = startBookMonitor(monitor.broadcastLabel, monitor.logs);
+                    break;
                 case monitorTypes.USER_DATA:
-                    return startUserDataMonitor(monitor.broadcastLabel, monitor.logs);
+                    restartFn = startUserDataMonitor(monitor.broadcastLabel, monitor.logs);
+                    break;
                 case monitorTypes.CANDLES:
                     return startChartMonitor(monitor.symbol,
                         monitor.interval,
@@ -246,6 +268,7 @@ async function init(settings, wssInstance, beholderInstance) {
                         monitor.broadcastLabel,
                         monitor.logs);
             }
+            if (restartFn instanceof Error) scheduleRestart(restartFn, monitor.type);
         }, 250)
     })
 
