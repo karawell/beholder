@@ -217,7 +217,7 @@ function calcQty(orderTemplate, price, symbol, isIceberg) {
     else if (orderTemplate.quantity === 'MIN_NOTIONAL') {
         newQty = (parseFloat(symbol.minNotional) / parseFloat(price)) * (multiplier < 1 ? 1 : multiplier);
     }
-    else if (orderTemplate.quantity = 'LAST_ORDER_QTY') {
+    else if (orderTemplate.quantity === 'LAST_ORDER_QTY') {
         const lastOrder = MEMORY[`${symbol.symbol}:LAST_ORDER`];
         if (!lastOrder) throw new Error(`There is no last order to use as reference qty for symbol ${symbol.symbol}`);
 
