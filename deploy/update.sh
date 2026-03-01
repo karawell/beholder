@@ -24,6 +24,7 @@ echo ""
 warn "Baixando atualizações do GitHub..."
 git config --global --add safe.directory $APP_DIR
 cd $APP_DIR
+git reset --hard HEAD
 git pull origin main
 log "Código atualizado!"
 
