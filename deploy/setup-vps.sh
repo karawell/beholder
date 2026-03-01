@@ -125,13 +125,13 @@ log "Seeders executados!"
 # ─── 10. Build do frontend ──────────────────────
 warn "Instalando dependências do frontend..."
 cd $APP_DIR/frontend
-npm install --omit=dev
+npm install
 
 warn "Gerando build do frontend..."
 cat > $APP_DIR/frontend/.env.production.local << EOF
-REACT_APP_API_URL=http://${PUBLIC_IP}/api
-REACT_APP_WS_URL=ws://${PUBLIC_IP}/ws
-REACT_APP_BWS_URL=wss://stream.binance.com:9443/ws
+VITE_API_URL=http://${PUBLIC_IP}/api
+VITE_WS_URL=ws://${PUBLIC_IP}/ws
+VITE_BWS_URL=wss://stream.binance.com:9443/ws
 EOF
 
 npm run build

@@ -37,7 +37,7 @@ log "Migrations executadas!"
 
 warn "Reconstruindo frontend..."
 cd $APP_DIR/frontend
-npm install --omit=dev
+npm install
 npm run build
 cp -r build/* /var/www/beholder/
 log "Frontend atualizado!"
