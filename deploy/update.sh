@@ -1,48 +1,54 @@
 #!/bin/bash
-# =============================================================================
-# Beholder — Script de atualização (rodar no VPS a cada novo deploy)
-# Uso: bash update.sh
-# =============================================================================
+
+# ============================================================
+# Beholder — Script de atualização
+# Uso: bash deploy/update.sh
+# ============================================================
 
 set -e
 
 APP_DIR="/home/beholder/app"
-WEB_DIR="/var/www/beholder"
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-echo "======================================================"
-echo "  Beholder — Atualizando deploy"
-echo "======================================================"
-
-# 1. Pull das mudanças
-echo "[1/5] Baixando atualizações..."
-cd "${APP_DIR}"
-git pull origin main
-
-# 2. Backend — dependências e migrations
-echo "[2/5] Atualizando backend..."
-cd "${APP_DIR}/backend"
-npm install --omit=dev
-npx sequelize-cli db:migrate
-
-# 3. Frontend — rebuild
-echo "[3/5] Rebuilding frontend..."
-cd "${APP_DIR}/frontend"
-npm install
-npm run build
-
-# 4. Copiar build para Nginx
-echo "[4/5] Copiando build para ${WEB_DIR}..."
-rm -rf "${WEB_DIR:?}"/*
-cp -r build/* "${WEB_DIR}/"
-
-# 5. Reiniciar backend com PM2
-echo "[5/5] Reiniciando backend..."
-cd "${APP_DIR}/backend"
-pm2 restart beholder --update-env
+log()  { echo -e "${GREEN}[OK]${NC} $1"; }
+warn() { echo -e "${YELLOW}[..] $1${NC}"; }
 
 echo ""
-echo "======================================================"
-echo "  Atualização concluída!"
-echo "  Verifique: pm2 logs beholder --lines 50"
-echo "  Saúde: curl http://localhost/health"
-echo "======================================================"
+echo "============================================"
+echo "  Beholder — Atualizando..."
+echo "============================================"
+echo ""
+
+warn "Baixando atualizações do GitHub..."
+cd $APP_DIR
+git pull origin main
+log "Código atualizado!"
+
+warn "Atualizando dependências do backend..."
+cd $APP_DIR/backend
+npm install --omit=dev
+log "Dependências atualizadas!"
+
+warn "Rodando novas migrations..."
+npx sequelize-cli db:migrate
+log "Migrations executadas!"
+
+warn "Reconstruindo frontend..."
+cd $APP_DIR/frontend
+npm install --omit=dev
+npm run build
+cp -r build/* /var/www/beholder/
+log "Frontend atualizado!"
+
+warn "Reiniciando bot..."
+pm2 restart beholder
+log "Bot reiniciado!"
+
+echo ""
+echo "============================================"
+echo -e "  ${GREEN}Atualização concluída!${NC}"
+echo "============================================"
+pm2 status
+echo ""
