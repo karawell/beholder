@@ -1,6 +1,6 @@
 import axios from './BaseService';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 const AUTOMATIONS_URL = `${API_URL}/automations/`;
 
 export async function getAutomations(page, token) {

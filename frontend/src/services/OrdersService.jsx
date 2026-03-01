@@ -1,9 +1,9 @@
 import axios from './BaseService';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 const ORDERS_URL = `${API_URL}/orders/`;
 
-const { STOP_TYPES } = require('./ExchangeService');
+import { STOP_TYPES } from './ExchangeService';
 
 export async function getOrders(symbol, page, token) {
     const ordersUrl = `${ORDERS_URL}${symbol}?page=${page}`;

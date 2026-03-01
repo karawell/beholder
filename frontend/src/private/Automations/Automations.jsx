@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Menu from '../../components/Menu/Menu'
 import Pagination from '../../components/Pagination/Pagination';
 import Footer from '../../components/Footer/Footer';
@@ -19,7 +19,7 @@ function Automations() {
         return new URLSearchParams(location.search).get('page');
     }
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [automations, setAutomations] = useState([]);
     const [count, setCount] = useState(0);
@@ -34,8 +34,8 @@ function Automations() {
     const [editAutomation, setEditAutomation] = useState(DEFAULT_AUTOMATION);
 
     useEffect(() => {
-        return history.listen(location => setPage(getPage(location)));
-    }, [history])
+        setPage(getPage(defaultLocation));
+    }, [defaultLocation])
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -66,7 +66,7 @@ function Automations() {
         const id = event.target.id.replace('start', '');
         const token = localStorage.getItem('token');
         startAutomation(id, token)
-            .then(automation => history.go(0))
+            .then(automation => navigate(0))
             .catch(err => {
                 console.log(err.response ? err.response.data : err.message);
                 setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
@@ -77,7 +77,7 @@ function Automations() {
         const id = event.target.id.replace('stop', '');
         const token = localStorage.getItem('token');
         stopAutomation(id, token)
-            .then(automation => history.go(0))
+            .then(automation => navigate(0))
             .catch(err => {
                 console.log(err.response ? err.response.data : err.message);
                 setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
@@ -88,7 +88,7 @@ function Automations() {
         const id = event.target.id.replace('delete', '');
         const token = localStorage.getItem('token');
         deleteAutomation(id, token)
-            .then(automation => history.go(0))
+            .then(automation => navigate(0))
             .catch(err => {
                 console.log(err.response ? err.response.data : err.message);
                 setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
@@ -96,7 +96,7 @@ function Automations() {
     }
 
     function onAutomationSubmit(event) {
-        history.go(0);
+        navigate(0);
     }
 
     return (

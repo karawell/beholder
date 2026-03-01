@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Menu from '../../components/Menu/Menu';
 import Pagination from '../../components/Pagination/Pagination';
 import Footer from '../../components/Footer/Footer';
@@ -17,13 +17,11 @@ function Monitors() {
         return new URLSearchParams(location.search).get('page');
     }
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        return history.listen(location => {
-            setPage(getPage(location));
-        })
-    }, [history])
+        setPage(getPage(defaultLocation));
+    }, [defaultLocation])
 
     const [count, setCount] = useState(0);
     const [page, setPage] = useState(getPage());
@@ -61,7 +59,7 @@ function Monitors() {
         const id = event.target.id.replace('stop', '');
         const token = localStorage.getItem('token');
         stopMonitor(id, token)
-            .then(monitor => { history.go(0) })
+            .then(monitor => { navigate(0) })
             .catch(err => {
                 console.error(err.response ? err.response.data : err.message);
                 setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
@@ -72,7 +70,7 @@ function Monitors() {
         const id = event.target.id.replace('start', '');
         const token = localStorage.getItem('token');
         startMonitor(id, token)
-            .then(monitor => { history.go(0) })
+            .then(monitor => { navigate(0) })
             .catch(err => {
                 console.error(err.response ? err.response.data : err.message);
                 setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
@@ -83,7 +81,7 @@ function Monitors() {
         const id = event.target.id.replace('delete', '');
         const token = localStorage.getItem('token');
         deleteMonitor(id, token)
-            .then(monitor => { history.go(0) })
+            .then(monitor => { navigate(0) })
             .catch(err => {
                 console.error(err.response ? err.response.data : err.message);
                 setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
@@ -92,7 +90,7 @@ function Monitors() {
     }
 
     function onModalSubmit(event) {
-        history.go(0);
+        navigate(0);
     }
 
     function onNewMonitorClick(event) {

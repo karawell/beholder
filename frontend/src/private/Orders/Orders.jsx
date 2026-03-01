@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import Menu from '../../components/Menu/Menu';
 import NewOrderButton from '../../components/NewOrder/NewOrderButton';
 import NewOrderModal from '../../components/NewOrder/NewOrderModal';
@@ -27,7 +27,7 @@ function Orders() {
         return new URLSearchParams(location.search).get('page');
     }
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [count, setCount] = useState(0);
     const [page, setPage] = useState(parseInt(getPage()));
@@ -51,14 +51,11 @@ function Orders() {
     }, [page, search])
 
     useEffect(() => {
-        return history.listen(location => {
-            // eslint-disable-next-line
-            setPage(getPage(location));
-        })
-    }, [history])
+        setPage(getPage(defaultLocation));
+    }, [defaultLocation])
 
     function onOrderSubmit(order) {
-        history.go(0);
+        navigate(0);
     }
 
     function onSearchChange(event) {

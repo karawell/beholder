@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Menu from '../../components/Menu/Menu'
 import Pagination from '../../components/Pagination/Pagination';
 import Footer from '../../components/Footer/Footer';
@@ -19,7 +19,7 @@ function OrderTemplates() {
         return new URLSearchParams(location.search).get('page');
     }
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [orderTemplates, setOrderTemplates] = useState([]);
     const [count, setCount] = useState(0);
@@ -30,9 +30,8 @@ function OrderTemplates() {
     const [editOrderTemplate, setEditOrderTemplate] = useState(DEFAULT_ORDER_TEMPLATE);
 
     useEffect(() => {
-        // eslint-disable-next-line
-        return history.listen(location => setPage(getPage(location)));
-    }, [history])
+        setPage(getPage(defaultLocation));
+    }, [defaultLocation])
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -62,7 +61,7 @@ function OrderTemplates() {
         const id = event.target.id.replace('delete', '');
         const token = localStorage.getItem('token');
         deleteOrderTemplate(id, token)
-            .then(orderTemplate => history.go(0))
+            .then(orderTemplate => navigate(0))
             .catch(err => {
                 console.log(err.response ? err.response.data : err.message);
                 setNotification({ type: 'error', text: err.response ? err.response.data : err.message });
@@ -70,7 +69,7 @@ function OrderTemplates() {
     }
 
     function onOrderTemplateSubmit(event) {
-        history.go(0);
+        navigate(0);
     }
 
     function onSearchChange(event) {

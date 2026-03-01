@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import Menu from '../../components/Menu/Menu';
 import MiniTicker from './MiniTicker/MiniTicker';
@@ -14,7 +14,7 @@ import Toast from '../../components/Toast/Toast';
 
 function Dashboard() {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [miniTickerState, setMiniTickerState] = useState({});
 
@@ -33,10 +33,10 @@ function Dashboard() {
     }
 
     function onOrderSubmit(order) {
-        history.push('/orders/' + order.symbol);
+        navigate('/orders/' + order.symbol);
     }
 
-    const { lastJsonMessage } = useWebSocket(process.env.REACT_APP_WS_URL, {
+    const { lastJsonMessage } = useWebSocket(import.meta.env.VITE_WS_URL, {
         onOpen: () => console.log(`Connected to App WS Server`),
         onMessage: () => {
             if (lastJsonMessage) {

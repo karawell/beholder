@@ -53,7 +53,7 @@ function Toast(props) {
         setNotification({ type: props.type, text: props.text });
     }, [props.type, props.text])
 
-    const { lastJsonMessage } = useWebSocket(process.env.REACT_APP_WS_URL, {
+    const { lastJsonMessage } = useWebSocket(import.meta.env.VITE_WS_URL, {
         onOpen: () => console.log('Connected to App WS'),
         onMessage: () => {
             if (lastJsonMessage && lastJsonMessage.notification) {

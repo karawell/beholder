@@ -218,7 +218,7 @@ function GridModal(props) {
                                 <label>You have:</label>
                             </div>
                         </div>
-                        <div className="form-group" className={gridView ? "d-none" : "d-block"}>
+                        <div className={`form-group ${gridView ? "d-none" : "d-block"}`}>
                             <WalletSummary wallet={wallet} symbol={symbol} />
                             <div className="row">
                                 <div className="col-md-6 mb-3">
@@ -262,7 +262,7 @@ function GridModal(props) {
                                 </div>
                             </div>
                         </div>
-                        <div className="form-group" className={gridView ? "d-block" : "d-none"}>
+                        <div className={`form-group ${gridView ? "d-block" : "d-none"}`}>
                             <GridTable data={automation.grids} />
                         </div>
                     </div>

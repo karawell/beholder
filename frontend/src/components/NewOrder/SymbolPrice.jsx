@@ -11,7 +11,7 @@ function SymbolPrice(props) {
     const [book, setBook] = useState({ bid: '0', ask: '0' });
 
     function getBinanceWSUrl() {
-        return `${process.env.REACT_APP_BWS_URL}/${props.symbol.toLowerCase()}@bookTicker`;
+        return `${import.meta.env.VITE_BWS_URL}/${props.symbol.toLowerCase()}@bookTicker`;
     }
 
     const { lastJsonMessage, sendJsonMessage } = useWebSocket(getBinanceWSUrl(), {

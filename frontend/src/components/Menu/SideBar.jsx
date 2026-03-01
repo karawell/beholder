@@ -1,15 +1,15 @@
 import React from 'react';
-import { useHistory, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { doLogout } from '../../services/AuthService';
 import SideBarItem from './SideBarItem';
 
 function SideBar() {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     function cleanAndRedirect() {
         localStorage.removeItem('token');
-        history.push('/');
+        navigate('/');
     }
 
     function onLogoutClick(event) {
