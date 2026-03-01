@@ -45,7 +45,18 @@ module.exports = (settings) => {
     }
 
     function bookStream(callback) {
-        binance.websockets.bookTickers(order => callback(order));
+        const reconnect = () => bookStream(callback);
+        binance.websockets.subscribe('!bookTicker@arr', data => {
+            const orders = Array.isArray(data) ? data : [data];
+            orders.forEach(d => callback({
+                updateId: d.u,
+                symbol: d.s,
+                bestBid: d.b,
+                bestBidQty: d.B,
+                bestAsk: d.a,
+                bestAskQty: d.A
+            }));
+        }, reconnect);
     }
 
     function userDataStream(balanceCallback, executionCallback, listStatusCallback) {
