@@ -9,7 +9,11 @@ const agenda = require('./agenda');
 const logger = require('./utils/logger');
 
 process.on('unhandledRejection', (reason) => {
-    logger.error(`Unhandled Rejection: ${reason}`);
+    if (reason instanceof Error) {
+        logger.error(`Unhandled Rejection: ${reason.message || reason}`, { body: reason.body, stack: reason.stack });
+    } else {
+        logger.error(`Unhandled Rejection: ${JSON.stringify(reason)}`);
+    }
 });
 
 process.on('uncaughtException', (err) => {
