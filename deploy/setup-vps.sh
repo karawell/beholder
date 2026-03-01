@@ -128,6 +128,8 @@ cd $APP_DIR/frontend
 npm install
 
 warn "Gerando build do frontend..."
+find $APP_DIR/frontend/src -name "*.js" -delete
+
 cat > $APP_DIR/frontend/.env.production.local << EOF
 VITE_API_URL=http://${PUBLIC_IP}/api
 VITE_WS_URL=ws://${PUBLIC_IP}/ws

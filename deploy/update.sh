@@ -39,8 +39,10 @@ log "Migrations executadas!"
 
 warn "Reconstruindo frontend..."
 cd $APP_DIR/frontend
+find $APP_DIR/frontend/src -name "*.js" -delete
 npm install
 npm run build
+mkdir -p /var/www/beholder
 cp -r build/* /var/www/beholder/
 log "Frontend atualizado!"
 
