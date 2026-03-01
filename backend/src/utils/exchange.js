@@ -59,14 +59,31 @@ module.exports = (settings) => {
         }, reconnect);
     }
 
-    function userDataStream(balanceCallback, executionCallback, listStatusCallback) {
-        binance.websockets.userData(
-            null,
-            balance => balanceCallback(balance),
-            executionData => executionCallback(executionData),
-            subscribedData => console.log(`userDataStream:subscribed: ${subscribedData}`),
-            listStatusData => listStatusCallback ? listStatusCallback(listStatusData) : null
-        )
+    async function userDataStream(balanceCallback, executionCallback, listStatusCallback) {
+        try {
+            const data = await binance.spotGetDataStream();
+            const listenKey = data.listenKey;
+
+            binance.websockets.subscribe(listenKey, msg => {
+                if (msg.e === 'outboundAccountPosition') {
+                    balanceCallback(msg);
+                } else if (msg.e === 'executionReport') {
+                    executionCallback(msg);
+                } else if (msg.e === 'listStatus' && listStatusCallback) {
+                    listStatusCallback(msg);
+                }
+            });
+
+            // Keepalive every 30 minutes
+            setInterval(() => {
+                binance.spotKeepDataStream(listenKey)
+                    .catch(err => console.error('userDataStream keepalive error:', err.message));
+            }, 30 * 60 * 1000);
+
+            console.log('userDataStream: connected via listen key');
+        } catch (err) {
+            console.error('userDataStream error:', err.message);
+        }
     }
 
     async function chartStream(symbol, interval, callback) {
