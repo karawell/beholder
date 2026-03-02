@@ -87,10 +87,11 @@ module.exports = (settings) => {
     }
 
     async function chartStream(symbol, interval, callback) {
+        let prevTick = null;
         binance.websockets.chart(symbol, interval, (symbol, interval, chart) => {
             const tick = binance.last(chart);
-            if (tick && chart[tick] && chart[tick].isFinal === false)
-                return;
+            if (!tick || tick === prevTick) return;
+            prevTick = tick;
 
             const ohlc = { open: [], high: [], low: [], close: [], volume: [] };
             Object.values(chart).forEach(candle => {
