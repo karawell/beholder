@@ -60,30 +60,79 @@ module.exports = (settings) => {
     }
 
     async function userDataStream(balanceCallback, executionCallback, listStatusCallback) {
-        try {
-            const data = await binance.spotGetDataStream();
-            const listenKey = data.listenKey;
+        const RETRY_INTERVAL = 30000;
+        let keepAliveTimer = null;
 
-            binance.websockets.subscribe(listenKey, msg => {
-                if (msg.e === 'outboundAccountPosition') {
-                    balanceCallback(msg);
-                } else if (msg.e === 'executionReport') {
-                    executionCallback(msg);
-                } else if (msg.e === 'listStatus' && listStatusCallback) {
-                    listStatusCallback(msg);
-                }
+        function listenKeyRequest(method, listenKey) {
+            return new Promise((resolve, reject) => {
+                const apiBase = settings.apiUrl.endsWith('/') ? settings.apiUrl : settings.apiUrl + '/';
+                const path = listenKey
+                    ? `v3/userDataStream?listenKey=${listenKey}`
+                    : 'v3/userDataStream';
+                const url = new URL(path, apiBase);
+                const lib = url.protocol === 'https:' ? require('https') : require('http');
+
+                const req = lib.request({
+                    hostname: url.hostname,
+                    port: url.port || undefined,
+                    path: url.pathname + url.search,
+                    method,
+                    headers: { 'X-MBX-APIKEY': settings.accessKey, 'Content-Length': 0 }
+                }, (res) => {
+                    let body = '';
+                    res.on('data', d => body += d);
+                    res.on('end', () => {
+                        if (res.statusCode >= 200 && res.statusCode < 300) {
+                            try { resolve(body ? JSON.parse(body) : {}); }
+                            catch (e) { reject(new Error(body)); }
+                        } else {
+                            reject(new Error(`HTTP ${res.statusCode}: ${body}`));
+                        }
+                    });
+                });
+                req.on('error', reject);
+                req.end();
             });
-
-            // Keepalive every 30 minutes
-            setInterval(() => {
-                binance.spotKeepDataStream(listenKey)
-                    .catch(err => console.error('userDataStream keepalive error:', err.message));
-            }, 30 * 60 * 1000);
-
-            console.log('userDataStream: connected via listen key');
-        } catch (err) {
-            console.error('userDataStream error:', err.message);
         }
+
+        const connect = async () => {
+            if (keepAliveTimer) {
+                clearInterval(keepAliveTimer);
+                keepAliveTimer = null;
+            }
+
+            try {
+                const data = await listenKeyRequest('POST');
+                const listenKey = data.listenKey;
+
+                binance.websockets.subscribe(listenKey, msg => {
+                    if (msg.e === 'outboundAccountPosition') {
+                        balanceCallback(msg);
+                    } else if (msg.e === 'executionReport') {
+                        executionCallback(msg);
+                    } else if (msg.e === 'listStatus' && listStatusCallback) {
+                        listStatusCallback(msg);
+                    }
+                });
+
+                keepAliveTimer = setInterval(() => {
+                    listenKeyRequest('PUT', listenKey)
+                        .catch(err => {
+                            console.error('userDataStream keepalive error:', err.message);
+                            clearInterval(keepAliveTimer);
+                            keepAliveTimer = null;
+                            connect();
+                        });
+                }, 30 * 60 * 1000);
+
+                console.log('userDataStream: connected via listen key');
+            } catch (err) {
+                console.error(`userDataStream error: ${err.message}. Retrying in ${RETRY_INTERVAL / 1000}s...`);
+                setTimeout(connect, RETRY_INTERVAL);
+            }
+        };
+
+        await connect();
     }
 
     async function chartStream(symbol, interval, callback) {
